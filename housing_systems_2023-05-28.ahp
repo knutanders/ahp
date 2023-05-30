@@ -1,0 +1,119 @@
+Version: 2.0
+
+# Input data for multi-criteria analysis using the R package AHP
+# Creator: Knut Anders Hovstad
+
+
+# Alternatives Section ------------------------------------------------
+
+Alternatives: &alternatives
+# Here, we list all the alternatives, together with their attributes. 
+# We can use these attributes later in the file when defining 
+# preferenceFunctions. The attributes can be quantitative or 
+# qualitative.
+  Compost:
+    animal_welfare: 0.51015927
+    consumer_opinion: 7.051449  # Based on data on hedonic scale (?) from Meghan 
+    herd_profit: 136865
+    nitrogen: 0.69
+    milk_hygiene: 0.4636367
+    ease_of_handling: 5.433333
+  Cubicle:
+    animal_welfare: 0.48984073
+    consumer_opinion: 4.023829   # Based on data on hedonic scale (?) from Meghan  
+    herd_profit: 123217
+    nitrogen: 0.74
+    milk_hygiene: 0.5363633
+    ease_of_handling: 5.705882
+
+
+# End of Alternatives Section
+# _____________________________________________________________________
+
+
+# Goal Section --------------------------------------------------------
+
+Goal:
+# The goal spans a tree of criteria and the alternatives
+  name: System evaluation 
+  description: >
+    The decision problem is to choose a one of two alternative housing systems 
+	for dairy cows based on six different criteria. The decision problem is 
+	viewed from the perspective of the farmer. suing is is a classic single decision maker problem. It models
+    the situation facing by a family that wants to buy a new car.
+  author: unknown
+  preferences:
+    # preferences are typically defined pairwise
+    # 1 means: A is equal to B
+    # 9 means: A is highly preferrable to B
+    # 1/9 means: B is highly preferrable to A
+    pairwise:
+      - [animal_welfare, consumer_opinion, 4.325947]
+      - [animal_welfare, herd_profit, 1.4221039]
+      - [animal_welfare, nitrogen, 2.3706019]
+      - [animal_welfare, milk_hygiene, 1.2011986]
+      - [animal_welfare, ease_of_handling, 1.5425064]
+      - [consumer_opinion, herd_profit, 0.4249529]
+      - [consumer_opinion, nitrogen, 0.5024029]
+      - [consumer_opinion, milk_hygiene, 0.3064370]
+      - [consumer_opinion, ease_of_handling, 0.3143693]
+      - [herd_profit, nitrogen, 2.2371411]
+      - [herd_profit, milk_hygiene, 0.5799437]
+      - [herd_profit, ease_of_handling, 0.5899785]
+      - [nitrogen, milk_hygiene, 0.3825192]
+      - [nitrogen, ease_of_handling, 0.6006342]
+      - [milk_hygiene, ease_of_handling, 1.4208771]	  
+      # The pairwise weights used here are aggregated individual weights from the srcipt Weights 2021-02-23c.R
+
+      # > farmers %>% ahp.mat(atts = atts, negconvert = FALSE) %>%
+      # +   ahp.aggjudge(atts, aggmethod = "geometric")
+      #          AW       CO        HP        NU        MH        EH
+      # AW 1.0000000 4.325947 1.4221039 2.3706019 1.2011986 1.5425064
+      # CO 0.2311633 1.000000 0.4249529 0.5024029 0.3064370 0.3143693
+      # HP 0.7031835 2.353202 1.0000000 2.2371411 0.5799437 0.5899785
+      # NU 0.4218338 1.990434 0.4469991 1.0000000 0.3825192 0.6006342
+      # MH 0.8325018 3.263314 1.7243053 2.6142475 1.0000000 1.4208771
+
+  children: 
+    animal_welfare: 
+      preferences: 
+        pairwiseFunction:
+          function(a1, a2) min(9, max(1/9, a1$animal_welfare/a2$animal_welfare))
+            # Pairwise function for variables where a larger value is better
+      children: *alternatives
+    consumer_opinion: 
+      preferences: 
+        pairwiseFunction:
+          function(a1, a2) min(9, max(1/9, a1$consumer_opinion/a2$consumer_opinion))
+            # Pairwise function for variables where a larger value is better
+      children: *alternatives
+    herd_profit:
+      preferences:
+        # pairwise:
+        # - [Compost, Cubicle, 47132/63396]
+        pairwiseFunction:
+          function(a1, a2) min(9, max(1/9, a2$herd_profit/a1$herd_profit))
+            # Pairwise function for variables where a smaller value is better.
+            # This is because only building costs are included and should probably be changed later on. 
+      children: *alternatives
+    nitrogen:
+      preferences:
+        pairwiseFunction:
+          function(a1, a2) min(9, max(1/9, a1$nitrogen/a2$nitrogen))
+            # Pairwise function for variables where a larger value is better
+      children: *alternatives
+    milk_hygiene:
+      preferences:
+        pairwiseFunction:
+          function(a1, a2) min(9, max(1/9, a1$milk_hygiene/a2$milk_hygiene))
+            # Pairwise function for variables where a larger value is better
+      children: *alternatives
+    ease_of_handling:
+      preferences:
+        pairwiseFunction:
+          function(a1, a2) min(9, max(1/9, a1$ease_of_handling/a2$ease_of_handling))
+            # Pairwise function for variables where a larger value is better
+      children: *alternatives
+#
+# End of Goal Section
+#______________________________________________________________________
