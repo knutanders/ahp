@@ -8,4 +8,4 @@ The structure of the analysis and the input data is described in the file
 housing_systems_2023-05-28.ahp. This file is used as input for the R script AHP_script_2023-05-28.R 
 that runs the actual analysis.
 
-Some of the results are visiualized in a raderplot by script radar_plot.R.
+Some of the results are visiualized in a rader plot by script radar_plot.R.
